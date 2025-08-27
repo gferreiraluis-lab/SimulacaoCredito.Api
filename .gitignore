@@ -1,0 +1,20 @@
+@"
+# IDE
+.vs/
+.vscode/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Build
+bin/
+obj/
+out/
+
+# Banco local
+*.db
+
+# Logs
+*.log
+"@ | Set-Content -Encoding UTF8 .gitignore
