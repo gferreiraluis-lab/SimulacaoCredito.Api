@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Conversa (WhatsApp style) — filtrado.csv (v22 + PDF)</title>
+    <style>
+      :root {
+        --bg: #0b141a;
+        --chat-bg: #111b21;
+        --bubble-left: #202c33; /* customer (esquerda) */
+        --bubble-right: #005c4b; /* outros (direita) */
+        --accent: #25d366;
+        --text: #e9edef;
+        --subtext: #8696a0;
+        --chat-paper: #0a1014;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--text);
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue",
+          Arial, sans-serif;
+        -webkit-print-color-adjust: exact; /* Chrome/Safari */
+        print-color-adjust: exact; /* Edge */
+      }
+
+      .header {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        background: #202c33;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 10px 14px;
+        border-bottom: 1px solid #1f2c34;
+      }
+      .avatar {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background: #2a3942;
+        display: grid;
+        place-items: center;
+        color: #fff;
+        font-weight: 600;
+      }
+      .info {
+        flex: 1;
+      }
+      .title {
+        font-size: 16px;
+        font-weight: 600;
+      }
+      .subtitle {
+        font-size: 12px;
+        color: var(--subtext);
+      }
+
+      .actions {
+        display: inline-flex;
+        gap: 8px;
+      }
+      .btn {
+        background: var(--accent);
+        color: #0b141a;
+        border: none;
+        padding: 8px 12px;
+        border-radius: 18px;
+        font-weight: 600;
+        cursor: pointer;
+      }
+
+      .chat {
+        height: calc(100vh - 128px);
+        background: radial-gradient(transparent 1px, var(--chat-paper) 1px) 0 0 /
+            10px 10px,
+          linear-gradient(0deg, rgba(0, 0, 0, 0.08), rgba(0, 0, 0, 0.08));
+        overflow-y: auto;
+        padding: 12px;
+        scroll-behavior: smooth;
+      }
+
+      .msg-row {
+        display: flex;
+        margin: 6px 0;
+      }
+      .msg-row.right {
+        justify-content: flex-end;
+      }
+      .msg {
+        max-width: min(80%, 640px);
+        padding: 8px 10px 18px 10px;
+        border-radius: 10px;
+        position: relative;
+        background: var(--bubble-left);
+        box-shadow: 0 1px 0 rgba(0, 0, 0, 0.25);
+        word-wrap: break-word;
+        line-height: 1.45;
+        break-inside: avoid;
+      }
+      .msg.right {
+        background: var(--bubble-right);
+        color: #d9fdd3;
+      }
+      .msg p {
+        margin: 0 0 6px 0;
+      }
+
+      .msg::after {
+        content: "";
+        position: absolute;
+        bottom: 0;
+        left: -6px;
+        width: 0;
+        height: 0;
+        border-top: 6px solid var(--bubble-left);
+        border-right: 6px solid transparent;
+      }
+      .msg-row.right .msg::after {
+        left: auto;
+        right: -6px;
+        border-top-color: var(--bubble-right);
+        border-right: none;
+        border-left: 6px solid transparent;
+      }
+
+      .meta {
+        position: absolute;
+        right: 8px;
+        bottom: 4px;
+        font-size: 11px;
+        color: var(--subtext);
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+      }
+      .tick {
+        display: inline-block;
+        width: 14px;
+        height: 14px;
+        filter: invert(80%);
+        background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="#aebbc5" d="M1 13l2-2 5 5L21 3l2 2L8 20z"/></svg>')
+          center/contain no-repeat;
+      }
+
+      .day-sep {
+        display: inline-block;
+        margin: 16px auto;
+        padding: 6px 10px;
+        color: var(--text);
+        background: #182229;
+        border-radius: 10px;
+        font-size: 12px;
+        text-align: center;
+        break-inside: avoid;
+      }
+
+      .hint {
+        color: var(--subtext);
+        font-size: 12px;
+        padding: 8px 14px;
+        background: #202c33;
+        border-top: 1px solid #1f2c34;
+      }
+      .hint strong {
+        color: var(--accent);
+      }
+
+      /* ===== Impressão ===== */
+      @media print {
+        @page {
+          size: A4 portrait;
+          margin: 12mm;
+        }
+        .header {
+          position: static;
+        }
+        .actions,
+        .hint {
+          display: none !important;
+        }
+        .chat {
+          height: auto;
+          overflow: visible;
+        }
+        body {
+          background: var(--bg);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="header">
+      <div class="avatar" id="chatAvatar" title="Protocolo">P</div>
+      <div class="info">
+        <div class="title" id="chatTitle">Protocolo</div>
+      </div>
+      <div class="actions">
+        <button class="btn" id="exportPdfBtn" title="Exportar PDF">
+          Exportar PDF
+        </button>
+      </div>
+    </header>
+
+    <main class="chat" id="chat"></main>
+    <div class="hint">
+      Para exportar em PDF com cores, clique em <strong>Exportar PDF</strong> e,
+      na caixa de impressão do navegador, mantenha
+      <em>Gráficos de fundo</em> habilitado (se disponível).
+    </div>
+
+    <script>
+      async function loadCSVText() {
+        const res = await fetch("filtrado.csv");
+        if (!res.ok)
+          throw new Error(
+            "Não foi possível carregar filtrado.csv (HTTP " + res.status + ")"
+          );
+        return await res.text();
+      }
+
+      function parseCSV(text, delimiter = ";") {
+        const rows = [];
+        let i = 0,
+          field = "",
+          row = [],
+          inQuotes = false;
+        function pushField() {
+          row.push(field);
+          field = "";
+        }
+        function pushRow() {
+          rows.push(row);
+          row = [];
+        }
+        while (i < text.length) {
+          const c = text[i];
+          if (inQuotes) {
+            if (c === '"') {
+              if (text[i + 1] === '"') {
+                field += '"';
+                i += 2;
+                continue;
+              }
+              inQuotes = false;
+              i++;
+              continue;
+            } else {
+              field += c;
+              i++;
+              continue;
+            }
+          } else {
+            if (c === '"') {
+              inQuotes = true;
+              i++;
+              continue;
+            }
+            if (c === delimiter) {
+              pushField();
+              i++;
+              continue;
+            }
+            if (c === "\n") {
+              pushField();
+              pushRow();
+              i++;
+              continue;
+            }
+            if (c === "\r") {
+              i++;
+              continue;
+            }
+            field += c;
+            i++;
+          }
+        }
+        if (field.length || row.length) {
+          pushField();
+          pushRow();
+        }
+        const header = rows.shift();
+        return rows.map((r) => {
+          const obj = {};
+          header.forEach((h, idx) => (obj[h] = (r[idx] ?? "").trim()));
+          return obj;
+        });
+      }
+
+      function decodePythonBytesLiteral(s) {
+        if (!s) return "";
+        const t = String(s).trim();
+
+        // Se NÃO parece bytes literal do Python e não tem \xHH, devolve como está.
+        const looksLikeBytesLiteral =
+          /^b['"]/i.test(t) || /\\x[0-9a-fA-F]{2}/.test(t);
+        if (!looksLikeBytesLiteral) return t;
+
+        let inner = t;
+        if (/^b['"]/i.test(inner)) inner = inner.slice(2);
+        if (
+          (inner.startsWith('"') && inner.endsWith('"')) ||
+          (inner.startsWith("'") && inner.endsWith("'"))
+        ) {
+          inner = inner.slice(1, -1);
+        }
+
+        const bytes = [];
+        for (let i = 0; i < inner.length; i++) {
+          const ch = inner[i];
+          if (ch === "\\") {
+            const next = inner[i + 1];
+            if (next === "x") {
+              const hex = inner.substr(i + 2, 2);
+              const val = parseInt(hex, 16);
+              if (!Number.isNaN(val)) bytes.push(val);
+              i += 3;
+              continue;
+            }
+            if (next === "n") {
+              bytes.push(10);
+              i++;
+              continue;
+            }
+            if (next === "r") {
+              bytes.push(13);
+              i++;
+              continue;
+            }
+            if (next === "t") {
+              bytes.push(9);
+              i++;
+              continue;
+            }
+            bytes.push(inner.charCodeAt(i + 1));
+            i++;
+            continue;
+          }
+          bytes.push(ch.charCodeAt(0));
+        }
+
+        return new TextDecoder("utf-8").decode(new Uint8Array(bytes)).trim();
+      }
+
+      function sanitizeAndFormatHtml(input) {
+        if (!input) return "";
+        let html = input;
+        html = html
+          .replace(/<\s*script[^>]*>[\s\S]*?<\s*\/\s*script\s*>/gi, "")
+          .replace(/<\s*style[^>]*>[\s\S]*?<\s*\/\s*style\s*>/gi, "")
+          .replace(/on\w+\s*=\s*"[^"]*"/gi, "")
+          .replace(/on\w+\s*=\s*'[^']*'/gi, "")
+          .replace(/javascript:\s*/gi, "");
+        html = html.replace(/<\/?p\s*>/gi, "\n");
+        html = html.replace(/\n\s*/g, "<br>");
+        html = html.replace(/(<br>\s*){3,}/g, "<br><br>");
+        return html.trim();
+      }
+
+      function formatTime(ts) {
+        if (!ts) return "";
+        const parts = ts.split(" ");
+        if (parts.length < 2) return ts;
+        const hm = parts[1].split(":");
+        return `${hm[0]}:${hm[1]}`;
+      }
+
+      function dayLabel(dateStr) {
+        if (!dateStr) return "";
+        const d = new Date(dateStr.replace(" ", "T"));
+        if (Number.isNaN(d.getTime())) return dateStr.split(" ")[0];
+        const dd = ("0" + d.getDate()).slice(-2);
+        const mm = ("0" + (d.getMonth() + 1)).slice(-2);
+        const yyyy = d.getFullYear();
+        return `${dd}/${mm}/${yyyy}`;
+      }
+
+      function render(rows) {
+        if (!rows || !rows.length) return;
+        rows.sort((a, b) =>
+          (a.UpdateDateTime || "").localeCompare(b.UpdateDateTime || "")
+        );
+        const proto =
+          rows.find((r) => r.Protocol && r.Protocol.trim())?.Protocol ||
+          "Protocolo não informado";
+        document.getElementById("chatTitle").textContent = proto;
+        document.getElementById("chatAvatar").textContent = (proto || "P")
+          .slice(-2)
+          .toUpperCase();
+
+        const chatEl = document.getElementById("chat");
+        chatEl.innerHTML = "";
+
+        let currentDay = null;
+        rows.forEach((r) => {
+          const raw = decodePythonBytesLiteral(r.Message);
+          if (!raw) return;
+          const isCustomer = (r.Agent_ID || "").toLowerCase() === "customer";
+          const rowEl = document.createElement("div");
+          rowEl.className = "msg-row" + (isCustomer ? "" : " right");
+
+          const msgEl = document.createElement("div");
+          msgEl.className = "msg" + (isCustomer ? "" : " right");
+
+          const looksHtml = /<\w+[^>]*>/.test(raw) || /<\/\w+>/.test(raw);
+          if (looksHtml) {
+            msgEl.innerHTML = sanitizeAndFormatHtml(raw);
+          } else {
+            msgEl.textContent = raw;
+          }
+
+          const meta = document.createElement("span");
+          meta.className = "meta";
+          meta.innerHTML = `${formatTime(
+            r.UpdateDateTime
+          )} <span class="tick" title="Entregue"></span>`;
+          msgEl.appendChild(meta);
+
+          const day = dayLabel(r.UpdateDateTime);
+          if (day !== currentDay) {
+            currentDay = day;
+            const sep = document.createElement("div");
+            sep.className = "day-sep";
+            sep.textContent = day;
+            chatEl.appendChild(sep);
+          }
+
+          rowEl.appendChild(msgEl);
+          chatEl.appendChild(rowEl);
+        });
+
+        chatEl.scrollTop = chatEl.scrollHeight;
+      }
+
+      (async function init() {
+        const text = await loadCSVText();
+        const rows = parseCSV(text, ";");
+        render(rows);
+      })();
+
+      // Exportar PDF via print dialog
+      document.getElementById("exportPdfBtn").addEventListener("click", () => {
+        window.print();
+      });
+    </script>
+  </body>
+</html>
