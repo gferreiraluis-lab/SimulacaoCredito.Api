@@ -1,0 +1,42 @@
+PS C:\apps\workerpushdev> c:\apps\workerpushdev\WorkerPushCaixa.exe
+warn: Microsoft.EntityFrameworkCore.Query[20504]
+      Compiling a query which loads related collections for more than one collection navigation, either via 'Include' or through projection, but no 'QuerySplittingBehavior' has been configured. By default, Entity Framework will use 'QuerySplittingBehavior.SingleQuery', which can potentially result in slow query performance. See https://go.microsoft.com/fwlink/?linkid=2134277 for more information. To identify the query that's triggering this warning call 'ConfigureWarnings(w => w.Throw(RelationalEventId.MultipleCollectionIncludeWarning))'.
+warn: Microsoft.EntityFrameworkCore.Query[20504]
+      Compiling a query which loads related collections for more than one collection navigation, either via 'Include' or through projection, but no 'QuerySplittingBehavior' has been configured. By default, Entity Framework will use 'QuerySplittingBehavior.SingleQuery', which can potentially result in slow query performance. See https://go.microsoft.com/fwlink/?linkid=2134277 for more information. To identify the query that's triggering this warning call 'ConfigureWarnings(w => w.Throw(RelationalEventId.MultipleCollectionIncludeWarning))'.
+warn: Microsoft.EntityFrameworkCore.Query[20504]
+      Compiling a query which loads related collections for more than one collection navigation, either via 'Include' or through projection, but no 'QuerySplittingBehavior' has been configured. By default, Entity Framework will use 'QuerySplittingBehavior.SingleQuery', which can potentially result in slow query performance. See https://go.microsoft.com/fwlink/?linkid=2134277 for more information. To identify the query that's triggering this warning call 'ConfigureWarnings(w => w.Throw(RelationalEventId.MultipleCollectionIncludeWarning))'.
+warn: Microsoft.EntityFrameworkCore.Query[20504]
+      Compiling a query which loads related collections for more than one collection navigation, either via 'Include' or through projection, but no 'QuerySplittingBehavior' has been configured. By default, Entity Framework will use 'QuerySplittingBehavior.SingleQuery', which can potentially result in slow query performance. See https://go.microsoft.com/fwlink/?linkid=2134277 for more information. To identify the query that's triggering this warning call 'ConfigureWarnings(w => w.Throw(RelationalEventId.MultipleCollectionIncludeWarning))'.
+info: Microsoft.Hosting.Lifetime[14]
+      Now listening on: http://localhost:5000
+info: Microsoft.Hosting.Lifetime[0]
+      Application started. Press Ctrl+C to shut down.
+info: Microsoft.Hosting.Lifetime[0]
+      Hosting environment: Production
+info: Microsoft.Hosting.Lifetime[0]
+      Content root path: C:\apps\workerpushdev
+fail: WorkerPushCaixa.Util.NotificationUtil[0]
+      [2026-02-03 14:48:22]  The maximum number of devices has been reached or exceeded for the namespace. TrackingId:aa6f1adf-b512-4f68-b60e-d5e83cec6615,TimeStamp:2/3/2026 5:48:22 PM +00:00
+      Microsoft.Azure.NotificationHubs.Messaging.UnauthorizedException:  The maximum number of devices has been reached or exceeded for the namespace. TrackingId:aa6f1adf-b512-4f68-b60e-d5e83cec6615,TimeStamp:2/3/2026 5:48:22 PM +00:00
+         at Microsoft.Azure.NotificationHubs.NotificationHubClient.SendRequestAsync(HttpRequestMessage request, String trackingId, HttpStatusCode[] successfulResponseStatuses, CancellationToken cancellationToken)
+         at Microsoft.Azure.NotificationHubs.NotificationHubClient.<>c__DisplayClass209_0`1.<<CreateOrUpdateRegistrationImplAsync>b__0>d.MoveNext()
+      --- End of stack trace from previous location ---
+         at Microsoft.Azure.NotificationHubs.NotificationHubRetryPolicy.RunOperation[T](Func`2 operation, CancellationToken cancellationToken)
+         at Microsoft.Azure.NotificationHubs.NotificationHubRetryPolicy.RunOperation[T](Func`2 operation, CancellationToken cancellationToken)
+         at Microsoft.Azure.NotificationHubs.NotificationHubClient.CreateOrUpdateRegistrationImplAsync[TRegistration](TRegistration registration, EntityOperatonType operationType, CancellationToken cancellationToken)
+         at WorkerPushCaixa.Util.NotificationUtil.RegistraDispositivo(MessageQueueRegistro registro) in D:\a\1\s\src\Util\NotificationUtil.cs:line 249
+fail: WorkerPushCaixa.Util.TelemetryUtil[0]
+      [2026-02-03 14:48:22] Nao foi possível salvar na Storage Table
+      System.NullReferenceException: Object reference not set to an instance of an object.
+         at WorkerPushCaixa.Util.TelemetryUtil.SaveOperationToTable[T](T result, String operationKey) in D:\a\1\s\src\Util\TelemetryUtil.cs:line 106
+         at WorkerPushCaixa.Util.TelemetryUtil.LogEvent[T](T result, IOperationHolder`1 operationHolder, String operationKey, Boolean success, Exception ex) in D:\a\1\s\src\Util\TelemetryUtil.cs:line 55
+fail: WorkerPushCaixa.Util.NotificationUtil[0]
+      [2026-02-03 14:48:23]  The maximum number of devices has been reached or exceeded for the namespace. TrackingId:cf4caf6d-444d-4567-8df7-0fa0d2a52aee,TimeStamp:2/3/2026 5:48:23 PM +00:00
+      Microsoft.Azure.NotificationHubs.Messaging.UnauthorizedException:  The maximum number of devices has been reached or exceeded for the namespace. TrackingId:cf4caf6d-444d-4567-8df7-0fa0d2a52aee,TimeStamp:2/3/2026 5:48:23 PM +00:00
+         at Microsoft.Azure.NotificationHubs.NotificationHubClient.SendRequestAsync(HttpRequestMessage request, String trackingId, HttpStatusCode[] successfulResponseStatuses, CancellationToken cancellationToken)
+         at Microsoft.Azure.NotificationHubs.NotificationHubClient.<>c__DisplayClass209_0`1.<<CreateOrUpdateRegistrationImplAsync>b__0>d.MoveNext()
+      --- End of stack trace from previous location ---
+         at Microsoft.Azure.NotificationHubs.NotificationHubRetryPolicy.RunOperation[T](Func`2 operation, CancellationToken cancellationToken)
+         at Microsoft.Azure.NotificationHubs.NotificationHubRetryPolicy.RunOperation[T](Func`2 operation, CancellationToken cancellationToken)
+         at Microsoft.Azure.NotificationHubs.NotificationHubClient.CreateOrUpdateRegistrationImplAsync[TRegistration](TRegistration registration, EntityOperatonType operationType, CancellationToken cancellationToken)
+         at WorkerPushCaixa.Util.NotificationUtil.RegistraDispositivo(MessageQueueRegistro registro) in D:\a\1\s\src\Util\NotificationUtil.cs:line 249
